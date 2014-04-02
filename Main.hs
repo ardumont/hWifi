@@ -33,26 +33,34 @@ import Network.HWifi (runWifiMonad,
                       available,
                       SSID)
 
--- | Scan the wifi, compute the list of autoconnect wifis, connect to one (if multiple possible,
---    the one with the most powerful signal is elected)
+-- | Scan the wifi, compute the list of autoconnect wifis, connect to one
+-- (if multiple possible, the one with the most powerful signal is elected)
 availableWifisWithLogs :: IO ([SSID], [String])
 availableWifisWithLogs =  runWifiMonad $ available scanCmd
 
+-- | Compute the available wifi list through a scanning
 availableWifis :: IO([SSID])
 availableWifis = fst <$> availableWifisWithLogs
 
+-- | Compute the available auto-connect wifi list and formatted logs
 alreadyUsedWifisWithLogs :: IO ([SSID], [String])
 alreadyUsedWifisWithLogs = runWifiMonad $ alreadyUsed knownCmd
 
+-- | Compute the available auto-connect wifi list on the current machine
 alreadyUsedWifis :: IO([SSID])
 alreadyUsedWifis = fst <$> alreadyUsedWifisWithLogs
 
+-- | Compute the wifi to connect to.
+-- The actual election policy is to elect the most powerful wifi based
+-- on available and known auto-connect wifi.
 electedWifi :: IO SSID
 electedWifi = join $ safeElect <$> alreadyUsedWifis <*> availableWifis
 
+-- | Log function
 logAll:: [String]-> IO ()
 logAll = mapM_ putStrLn
 
+-- | Do the actual connection to an available and known wifi
 main :: IO ()
 main = do
   (allWifis, msg1)   <- availableWifisWithLogs
