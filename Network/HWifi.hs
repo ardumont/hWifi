@@ -23,7 +23,16 @@ import Data.List (intersect, sort)
 import Control.Monad.Writer hiding (mapM_)
 import Prelude hiding (elem)
 import Control.Arrow ((***), second)
-import Network.Utils (clean, logMsg, run, catchIO)
+import Network.Utils (clean
+                     ,logMsg
+                     ,run
+                     ,catchIO
+                     ,Command(Scan)
+                     ,Command(Connect)
+                     ,conCmd
+                     ,scanCmd
+                     ,knownCmd
+                     ,connect)
 import Control.Exception
 
 type WifiMonad w a = WriterT w IO a
@@ -32,26 +41,9 @@ type SSID  = String
 type Signal= String
 type Wifi  = (SSID, Signal)
 type Log   = String
-data Command = Scan{ scan :: String} | Connect {connect :: String -> String}
-
-instance Show Command where
-  show (Scan _) = "Scanning for finding some Wifi"
-  show (Connect _) = "Connecting to an elected Wifi..."
 
 runWifiMonad :: WifiMonad w a -> IO (a, w)
 runWifiMonad  = runWriterT
-
--- | Command to scan the current wifi
-scanCmd :: Command
-scanCmd = Scan "nmcli --terse --fields ssid,signal dev wifi"
-
--- | Command to list the wifi the computer can currently auto connect to
-knownCmd :: Command
-knownCmd = Scan "nmcli --terse --fields name con list"
-
--- | Given a wifi, execute the command to connect to a wifi (need super power :)
-conCmd :: Command
-conCmd = Connect ("sudo nmcli con up id " ++)
 
 -- | Slice a string "'wifi':signal" in a tuple ("wifi", "signal")
 parse :: String -> Wifi
@@ -89,4 +81,12 @@ safeElect wifis = (`catchIO` []) . evaluate . head . intersect wifis
 
 -- | Run the connection to a wifi
 safeConnect :: String -> IO [String]
-safeConnect = run . connect conCmd
+safeConnect = (`catchIO` []) . run . connect conCmd
+
+-- | Run the available wifis computation
+safeAvailable :: WifiMonad [Log] [SSID]
+safeAvailable = available scanCmd
+
+-- | Run the already used wifis computation
+safeAlreadyUsed :: WifiMonad [Log] [SSID]
+safeAlreadyUsed = alreadyUsed knownCmd

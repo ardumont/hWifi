@@ -51,3 +51,22 @@ logMsg prefix f = (prefix :) . map f
 catchIO :: MonadIO m => IO a -> a -> m a
 catchIO ma defValue = liftIO (ma `catch` \(SomeException e) ->
                       hPrint stderr e >> hFlush stderr >> return defValue)
+
+data Command = Scan{ scan :: String} | Connect {connect :: String -> String}
+
+instance Show Command where
+  show (Scan _) = "Scanning for finding some Wifi"
+  show (Connect _) = "Connecting to an elected Wifi..."
+
+
+-- | Command to scan the current wifi
+scanCmd :: Command
+scanCmd = Scan "nmcli --terse --fields ssid,signal dev wifi"
+
+-- | Command to list the wifi the computer can currently auto connect to
+knownCmd :: Command
+knownCmd = Scan "nmcli --terse --fields name con list"
+
+-- | Given a wifi, execute the command to connect to a wifi (need super power :)
+conCmd :: Command
+conCmd = Connect ("sudo nmcli con up id " ++)
