@@ -27,14 +27,14 @@ import Control.Applicative ((<*>))
 import Network.HWifi (runWifiMonad,
                       safeConnect,
                       safeElect,
-                      safeAvailable,
-                      safeAlreadyUsed,
+                      runAvailable,
+                      runAlreadyUsed,
                       SSID)
 
 -- | Scan the wifi, compute the list of autoconnect wifis, connect to one
 -- (if multiple possible, the one with the most powerful signal is elected)
 availableWifisWithLogs :: IO ([SSID], [String])
-availableWifisWithLogs = runWifiMonad $ safeAvailable
+availableWifisWithLogs = runWifiMonad $ runAvailable
 
 -- | Compute the available wifi list through a scanning
 availableWifis :: IO([SSID])
@@ -42,7 +42,7 @@ availableWifis = fst <$> availableWifisWithLogs
 
 -- | Compute the available auto-connect wifi list and formatted logs
 alreadyUsedWifisWithLogs :: IO ([SSID], [String])
-alreadyUsedWifisWithLogs = runWifiMonad $ safeAlreadyUsed
+alreadyUsedWifisWithLogs = runWifiMonad $ runAlreadyUsed
 
 -- | Compute the available auto-connect wifi list on the current machine
 alreadyUsedWifis :: IO([SSID])

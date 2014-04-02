@@ -84,9 +84,9 @@ safeConnect :: String -> IO [String]
 safeConnect = (`catchIO` []) . run . connect conCmd
 
 -- | Run the available wifis computation
-safeAvailable :: WifiMonad [Log] [SSID]
-safeAvailable = available scanCmd
+runAvailable :: WifiMonad [Log] [SSID]
+runAvailable = available scanCmd
 
 -- | Run the already used wifis computation
-safeAlreadyUsed :: WifiMonad [Log] [SSID]
-safeAlreadyUsed = alreadyUsed knownCmd
+runAlreadyUsed :: WifiMonad [Log] [SSID]
+runAlreadyUsed = alreadyUsed knownCmd
