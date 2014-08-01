@@ -36,16 +36,16 @@ import Network.HWifi ( runWifiMonad
                      , available)
 
 -- | Returns the available network wifi list and records any logged message
-availableWifisWithLogs :: IO ([SSID], [Log])
-availableWifisWithLogs = runWifiMonad $ available scanCmd
+availableWifisWithLogs :: Command -> IO ([SSID], [Log])
+availableWifisWithLogs scanCmd = runWifiMonad $ available scanCmd
 
 -- | Returns already used network wifi list and record any logged message.
-alreadyUsedWifisWithLogs :: IO ([SSID], [Log])
-alreadyUsedWifisWithLogs = runWifiMonad $ alreadyUsed knownCmd
+alreadyUsedWifisWithLogs :: Command -> IO ([SSID], [Log])
+alreadyUsedWifisWithLogs knownCmd = runWifiMonad $ alreadyUsed knownCmd
 
 -- | Connect to the wifi
-connectWifi :: SSID -> IO [SSID]
-connectWifi = run . connect conCmd
+connectWifi :: Command -> SSID -> IO [SSID]
+connectWifi cmd = run . connect cmd
 
 -- | Log informational
 output :: [Log]-> IO ()
@@ -55,22 +55,22 @@ output = mapM_ putStrLn
 -- Determine the highest known wifi signal and connect to it
 main :: IO ()
 main = do
-  (allWifis, log)   <- availableWifisWithLogs
+  (allWifis, log)   <- availableWifisWithLogs scanCmd
   output log
-  (knownWifis, log) <- alreadyUsedWifisWithLogs
+  (knownWifis, log) <- alreadyUsedWifisWithLogs knownCmd
   output log
   let elected = elect knownWifis allWifis
-  _ <- join $ connectWifi <$> elected
+  _ <- join $ connectWifi conCmd <$> elected
   elected >>= putStrLn . ("\n Elected Wifi: "++)
 
 -- | Returns available network wifis. It discards any logged message.
-availableWifis :: IO [SSID]
-availableWifis = fst <$> availableWifisWithLogs
+availableWifis :: Command -> IO [SSID]
+availableWifis scanCmd = fst <$> availableWifisWithLogs scanCmd
 
 -- | Returns already used network wifis. It discards any logged message.
-alreadyUsedWifis :: IO [SSID]
-alreadyUsedWifis = fst <$> alreadyUsedWifisWithLogs
+alreadyUsedWifis :: Command -> IO [SSID]
+alreadyUsedWifis knownCmd = fst <$> alreadyUsedWifisWithLogs knownCmd
 
 -- | Returns elected wifi (wifi already known, available, with highest signal).
-electedWifi :: IO SSID
-electedWifi = join $ elect <$> alreadyUsedWifis <*> availableWifis
+electedWifi :: Command -> Command -> IO SSID
+electedWifi scanCmd knownCmd = join $ elect <$> alreadyUsedWifis knownCmd <*> availableWifis scanCmd
