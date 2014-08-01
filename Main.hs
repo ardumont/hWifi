@@ -51,6 +51,8 @@ connectWifi = run . connect conCmd
 logAll:: [Log]-> IO ()
 logAll = mapM_ putStrLn
 
+-- | Main orchestrator
+-- Determine the highest known wifi signal and connect to it
 main :: IO ()
 main = do
   (allWifis, msg1)   <- availableWifisWithLogs
