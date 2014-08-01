@@ -37,11 +37,11 @@ import Network.HWifi ( runWifiMonad
 
 -- | Returns the available network wifi list and records any logged message
 availableWifisWithLogs :: Command -> IO ([SSID], [Log])
-availableWifisWithLogs scanCmd = runWifiMonad $ available scanCmd
+availableWifisWithLogs = runWifiMonad . available
 
 -- | Returns already used network wifi list and record any logged message.
 alreadyUsedWifisWithLogs :: Command -> IO ([SSID], [Log])
-alreadyUsedWifisWithLogs knownCmd = runWifiMonad $ alreadyUsed knownCmd
+alreadyUsedWifisWithLogs = runWifiMonad . alreadyUsed
 
 -- | Connect to the wifi
 connectWifi :: Command -> SSID -> IO [SSID]
