@@ -3,11 +3,10 @@ module Network.Types where
 import Control.Monad.Writer (WriterT)
 
 type WifiMonad w a = WriterT w IO a
-type SSID  = String
-type Signal= String
-type Wifi  = (SSID, Signal)
-type Log   = String
-
+type SSID   = String
+type Signal = String
+type Wifi   = (SSID, Signal)
+type Log    = String
 
 -- | A CLI command to connect or scan wifi
 type CLICommand = String

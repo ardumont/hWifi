@@ -37,7 +37,7 @@ import Network.HWifi ( runWifiMonad
 
 -- | Returns the available network wifi list and records any logged message
 availableWifisWithLogs :: IO ([SSID], [Log])
-availableWifisWithLogs =  runWifiMonad $ available scanCmd
+availableWifisWithLogs = runWifiMonad $ available scanCmd
 
 -- | Returns available network wifis. It discards any logged message.
 availableWifis :: IO [SSID]
