@@ -47,18 +47,18 @@ alreadyUsedWifisWithLogs = runWifiMonad $ alreadyUsed knownCmd
 connectWifi :: SSID -> IO [SSID]
 connectWifi = run . connect conCmd
 
--- | Log stuff
-logAll:: [Log]-> IO ()
-logAll = mapM_ putStrLn
+-- | Log informational
+output :: [Log]-> IO ()
+output = mapM_ putStrLn
 
 -- | Main orchestrator
 -- Determine the highest known wifi signal and connect to it
 main :: IO ()
 main = do
-  (allWifis, msg1)   <- availableWifisWithLogs
-  logAll msg1
-  (knownWifis, msg2) <- alreadyUsedWifisWithLogs
-  logAll msg2
+  (allWifis, log)   <- availableWifisWithLogs
+  output log
+  (knownWifis, log) <- alreadyUsedWifisWithLogs
+  output log
   let elected = elect knownWifis allWifis
   _ <- join $ connectWifi <$> elected
   elected >>= putStrLn . ("\n Elected Wifi: "++)
