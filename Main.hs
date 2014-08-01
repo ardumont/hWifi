@@ -55,6 +55,10 @@ alreadyUsedWifis = fst <$> alreadyUsedWifisWithLogs
 electedWifi :: IO SSID
 electedWifi = join $ elect <$> alreadyUsedWifis <*> availableWifis
 
+-- | Connect to the wifi
+connectWifi :: SSID -> IO [SSID]
+connectWifi = run . connect conCmd
+
 -- | Log stuff
 logAll:: [Log]-> IO ()
 logAll = mapM_ putStrLn
@@ -66,5 +70,5 @@ main = do
   (knownWifis, msg2) <- alreadyUsedWifisWithLogs
   logAll msg2
   let elected = elect knownWifis allWifis
-  _ <- join $ run . connect conCmd <$> elected
+  _ <- join $ connectWifi <$> elected
   elected >>= putStrLn . ("\n Elected Wifi: "++)
