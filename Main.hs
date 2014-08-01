@@ -24,12 +24,16 @@ import Control.Monad(join)
 import Data.Functor((<$>))
 import Control.Applicative((<*>))
 import Network.Utils(run)
-import Network.Nmcli(conCmd, scanCmd, knownCmd)
-import Network.Types(SSID, Log, Command(..))
-import Network.HWifi (runWifiMonad,
-                      elect,
-                      alreadyUsed,
-                      available)
+import Network.Nmcli( conCmd
+                    , scanCmd
+                    , knownCmd)
+import Network.Types( SSID
+                    , Log
+                    , Command(..))
+import Network.HWifi ( runWifiMonad
+                     , elect
+                     , alreadyUsed
+                     , available)
 
 -- | Returns the available network wifi list and records any logged message
 availableWifisWithLogs :: IO ([SSID], [Log])
@@ -51,6 +55,7 @@ alreadyUsedWifis = fst <$> alreadyUsedWifisWithLogs
 electedWifi :: IO SSID
 electedWifi = join $ elect <$> alreadyUsedWifis <*> availableWifis
 
+-- | Log stuff
 logAll:: [Log]-> IO ()
 logAll = mapM_ putStrLn
 
